@@ -1,0 +1,1395 @@
+                       
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen Ensamblador 8086/88</title>
+    <style>
+        :root {
+            --color-black: #1a1a1a;
+            --color-dark-blue: #1e3a5f;
+            --color-blue: #3d5a80;
+            --color-light-blue: #98c1d9;
+            --color-pastel-blue: #e0fbfc;
+            --color-gray: #6c757d;
+            --color-light-gray: #f8f9fa;
+            --color-accent: #ee6c4d;
+            --color-accent-light: #f8a07e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--color-black);
+            background-color: var(--color-pastel-blue);
+            background-image: linear-gradient(45deg, var(--color-pastel-blue) 0%, #f5f5f5 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: var(--color-dark-blue);
+            background-image: linear-gradient(135deg, var(--color-dark-blue) 0%, #142b45 100%);
+            color: white;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            margin-right: 1.5rem;
+        }
+        
+        .title-container {
+            text-align: left;
+        }
+        
+        .title-container h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .title-container p {
+            margin: 0.5rem 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            position: relative;
+        }
+        
+        /* Añadir decoraciones gráficas */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            width: 300px;
+            height: 300px;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%233d5a80' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.2;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Efecto de microchip en el fondo */
+        .container::after {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 300px;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v100H0z' fill='none'/%3E%3Cpath d='M10 10h10v10H10zm20 0h10v10H30zm20 0h10v10H50zm20 0h10v10H70zm20 0h10v10H90zM10 30h10v10H10zm20 0h10v10H30zm20 0h10v10H50zm20 0h10v10H70zm20 0h10v10H90zM10 50h10v10H10zm20 0h10v10H30zm20 0h10v10H50zm20 0h10v10H70zm20 0h10v10H90zM10 70h10v10H10zm20 0h10v10H30zm20 0h10v10H50zm20 0h10v10H70zm20 0h10v10H90zM10 90h10v10H10zm20 0h10v10H30zm20 0h10v10H50zm20 0h10v10H70zm20 0h10v10H90z' fill='%233d5a80' fill-opacity='0.03'/%3E%3Cpath d='M0 15h5v70H0zm95 0h5v70h-5zM15 0v5h70V0zm0 95v5h70v-5zM15 15h70v70H15z' fill='%233d5a80' fill-opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2.5rem;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background-color: var(--color-blue);
+            background-image: linear-gradient(90deg, var(--color-blue) 0%, var(--color-dark-blue) 100%);
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.2rem;
+        }
+        
+        .card-header svg {
+            margin-right: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: var(--color-light-gray);
+            border-bottom: 1px solid var(--color-light-blue);
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            background-color: var(--color-light-gray);
+            border: none;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.95rem;
+            z-index: 1;
+        }
+        
+        .tab:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-top: 3px solid var(--color-blue);
+            border-left: 1px solid var(--color-light-blue);
+            border-right: 1px solid var(--color-light-blue);
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+            color: var(--color-blue);
+        }
+        
+        .tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 1rem;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .box {
+            background-color: var(--color-pastel-blue);
+            border: 1px solid var(--color-light-blue);
+            border-radius: 8px;
+            padding: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--color-blue);
+        }
+        
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--color-blue);
+            opacity: 0.6;
+        }
+        
+        .box h3 {
+            margin-top: 0;
+            color: var(--color-dark-blue);
+            border-bottom: 2px solid var(--color-light-blue);
+            padding-bottom: 0.5rem;
+            font-size: 1.1rem;
+            display: inline-block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        table th {
+            background-color: var(--color-light-blue);
+            padding: 0.5rem;
+            text-align: left;
+            color: var(--color-dark-blue);
+        }
+        
+        table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--color-light-gray);
+        }
+        
+        .registro {
+            display: flex;
+            background-color: var(--color-light-gray);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--color-gray);
+        }
+        
+        .registro-parte {
+            padding: 0.5rem;
+            text-align: center;
+            flex: 1;
+            border-right: 1px solid var(--color-gray);
+        }
+        
+        .registro-parte:last-child {
+            border-right: none;
+        }
+        
+        .registro-nombre {
+            background-color: var(--color-dark-blue);
+            color: white;
+            padding: 0.5rem;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .diagram {
+            background-color: white;
+            border: 1px solid var(--color-gray);
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .flex-item {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .pill {
+            display: inline-block;
+            background-color: var(--color-light-blue);
+            color: var(--color-dark-blue);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        footer {
+            background-color: var(--color-dark-blue);
+            background-image: linear-gradient(135deg, var(--color-dark-blue) 0%, #142b45 100%);
+            color: white;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 300px;
+            margin: 0 1rem;
+        }
+        
+        .footer-section h3 {
+            color: var(--color-pastel-blue);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .developers-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .developers-list li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .carnet {
+            color: var(--color-light-blue);
+            font-family: monospace;
+            margin-left: 0.5rem;
+        }
+        
+        .copyright {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid var(--color-blue);
+            margin: 10px auto;
+        }
+
+        .mem-box {
+            border: 2px solid var(--color-blue);
+            padding: 10px;
+            margin: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="10" width="44" height="44" rx="4" fill="#1e3a5f"/>
+                    <rect x="16" y="16" width="32" height="6" rx="1" fill="#e0fbfc"/>
+                    <rect x="16" y="26" width="32" height="6" rx="1" fill="#e0fbfc"/>
+                    <rect x="16" y="36" width="32" height="6" rx="1" fill="#e0fbfc"/>
+                    <rect x="16" y="46" width="32" height="2" rx="1" fill="#e0fbfc"/>
+                </svg>
+            </div>
+            <div class="title-container">
+                <h1>Ensamblador 8086/88</h1>
+                <p>Arquitectura y Tecnología de Computadores - Grupo 3</p>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="white"/>
+                    <path d="M2 17L12 22L22 17" fill="white"/>
+                    <path d="M2 12L12 17L22 12" fill="white"/>
+                </svg>
+                Introducción
+            </div>
+            <div class="card-body">
+                <div class="welcome-banner">
+                    <div class="processor-image">
+                <div class="processor-image">
+                        <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Borde exterior del chip -->
+                            <rect x="50" y="50" width="150" height="150" fill="#1e3a5f" stroke="#000" stroke-width="2" />
+                            
+                            <!-- Muesca de orientación -->
+                            <path d="M120 50 L130 50 L130 60 L120 60 Z" fill="#1a1a1a" />
+                            
+                            <!-- Pines del procesador - lado superior -->
+                            <line x1="60" y1="50" x2="60" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="70" y1="50" x2="70" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="80" y1="50" x2="80" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="90" y1="50" x2="90" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="100" y1="50" x2="100" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="110" y1="50" x2="110" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <!-- Skip muesca -->
+                            <line x1="140" y1="50" x2="140" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="150" y1="50" x2="150" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="160" y1="50" x2="160" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="170" y1="50" x2="170" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="180" y1="50" x2="180" y2="30" stroke="#6c757d" stroke-width="2" />
+                            <line x1="190" y1="50" x2="190" y2="30" stroke="#6c757d" stroke-width="2" />
+                            
+                            <!-- Pines del procesador - lado derecho -->
+                            <line x1="200" y1="60" x2="220" y2="60" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="70" x2="220" y2="70" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="80" x2="220" y2="80" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="90" x2="220" y2="90" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="100" x2="220" y2="100" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="110" x2="220" y2="110" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="120" x2="220" y2="120" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="130" x2="220" y2="130" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="140" x2="220" y2="140" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="150" x2="220" y2="150" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="160" x2="220" y2="160" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="170" x2="220" y2="170" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="180" x2="220" y2="180" stroke="#6c757d" stroke-width="2" />
+                            <line x1="200" y1="190" x2="220" y2="190" stroke="#6c757d" stroke-width="2" />
+                            
+                            <!-- Pines del procesador - lado inferior -->
+                            <line x1="60" y1="200" x2="60" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="70" y1="200" x2="70" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="80" y1="200" x2="80" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="90" y1="200" x2="90" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="100" y1="200" x2="100" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="110" y1="200" x2="110" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="120" y1="200" x2="120" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="130" y1="200" x2="130" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="140" y1="200" x2="140" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="150" y1="200" x2="150" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="160" y1="200" x2="160" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="170" y1="200" x2="170" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="180" y1="200" x2="180" y2="220" stroke="#6c757d" stroke-width="2" />
+                            <line x1="190" y1="200" x2="190" y2="220" stroke="#6c757d" stroke-width="2" />
+                            
+                            <!-- Pines del procesador - lado izquierdo -->
+                            <line x1="50" y1="60" x2="30" y2="60" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="70" x2="30" y2="70" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="80" x2="30" y2="80" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="90" x2="30" y2="90" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="100" x2="30" y2="100" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="110" x2="30" y2="110" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="120" x2="30" y2="120" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="130" x2="30" y2="130" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="140" x2="30" y2="140" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="150" x2="30" y2="150" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="160" x2="30" y2="160" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="170" x2="30" y2="170" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="180" x2="30" y2="180" stroke="#6c757d" stroke-width="2" />
+                            <line x1="50" y1="190" x2="30" y2="190" stroke="#6c757d" stroke-width="2" />
+                            
+                            <!-- Texto dentro del chip -->
+                            <text x="125" y="110" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">Intel</text>
+                            <text x="125" y="130" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">8086</text>
+                            <text x="125" y="150" font-family="sans-serif" font-size="12" text-anchor="middle" fill="white">16-bit CPU</text>
+                            <text x="125" y="170" font-family="sans-serif" font-size="10" text-anchor="middle" fill="white">5 MHz</text>
+                        </svg>
+                    </div>
+                    </div>
+                    <div class="welcome-text">
+                        <h2>Guía Completa del Procesador 8086/88</h2>
+                        <p>Este documento proporciona una visión general completa del procesador Intel 8086/88, incluyendo su arquitectura, registros, modos de direccionamiento e instrucciones. Ideal para estudiantes y profesionales interesados en la arquitectura de computadoras y programación en lenguaje ensamblador.</p>
+                        <div class="chip-details">
+                            <div class="chip-detail">
+                                <span class="detail-label">Bus de datos:</span> 
+                                <span class="detail-value">16 bits (8086) / 8 bits (8088)</span>
+                            </div>
+                            <div class="chip-detail">
+                                <span class="detail-label">Bus de direcciones:</span> 
+                                <span class="detail-value">20 bits (1 MB de memoria)</span>
+                            </div>
+                            <div class="chip-detail">
+                                <span class="detail-label">Año de lanzamiento:</span> 
+                                <span class="detail-value">1978</span>
+                            </div>
+                            <div class="chip-detail">
+                                <span class="detail-label">Fabricante:</span> 
+                                <span class="detail-value">Intel Corporation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p>El lenguaje ensamblador es un conjunto de palabras que indican al ordenador lo que tiene que hacer. A diferencia de otros lenguajes, cada instrucción en ensamblador tiene una correspondencia exacta con una operación en el procesador.</p>
+                
+                <div class="flex-container">
+                    <div class="flex-item box">
+                        <h3>Tamaño de los datos</h3>
+                        <ul>
+                            <li><strong>4 bits:</strong> nibble</li>
+                            <li><strong>8 bits:</strong> byte</li>
+                            <li><strong>16 bits:</strong> word</li>
+                            <li><strong>32 bits:</strong> dword</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flex-item box">
+                        <h3>Almacenamiento de datos</h3>
+                        <p>El 8086/88 usa el formato <strong>"little endian"</strong>: el byte menos significativo (LSB) del dato es guardado en la parte baja de la memoria.</p>
+                        <div class="diagram">
+                            <div class="mem-box">0x1122</div>
+                            <div class="arrow"></div>
+                            <div style="display: flex; justify-content: center;">
+                                <div class="mem-box" style="background-color: var(--color-light-blue);">0x22</div>
+                                <div class="mem-box" style="background-color: var(--color-light-gray);">0x11</div>
+                            </div>
+                            <p style="text-align: center; font-size: 0.9rem;">Dirección más baja → Dirección más alta</p>
+                        </div>
+                        
+                        <div class="image-container">
+                            <svg width="100%" height="250" viewBox="0 0 500 250" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Fondo del diagrama -->
+                                <rect x="10" y="10" width="480" height="230" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" />
+                                
+                                <!-- Título -->
+                                <text x="250" y="30" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Representación de Little Endian en Memoria</text>
+                                
+                                <!-- Valor original -->
+                                <rect x="150" y="50" width="200" height="40" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" rx="5" ry="5" />
+                                <text x="250" y="75" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a5f">0x1122</text>
+                                
+                                <!-- Flecha hacia abajo -->
+                                <path d="M250 90 L250 120" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrowhead3)" />
+                                <text x="270" y="110" font-family="sans-serif" font-size="12" fill="#1e3a5f">Almacenamiento</text>
+                                
+                                <!-- Memoria -->
+                                <rect x="150" y="130" width="200" height="80" fill="#f8f9fa" stroke="#3d5a80" stroke-width="2" />
+                                
+                                <!-- Divisor de celdas de memoria -->
+                                <line x1="250" y1="130" x2="250" y2="210" stroke="#3d5a80" stroke-width="1" />
+                                
+                                <!-- Direcciones de memoria -->
+                                <text x="180" y="150" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#6c757d">Dirección más baja</text>
+                                <text x="320" y="150" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#6c757d">Dirección más alta</text>
+                                
+                                <!-- Bytes almacenados -->
+                                <rect x="175" y="160" width="50" height="40" fill="#98c1d9" stroke="#3d5a80" stroke-width="1" />
+                                <text x="200" y="185" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a5f">22</text>
+                                
+                                <rect x="275" y="160" width="50" height="40" fill="#e0fbfc" stroke="#3d5a80" stroke-width="1" />
+                                <text x="300" y="185" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a5f">11</text>
+                                
+                                <!-- Definición de punta de flecha -->
+                                <defs>
+                                    <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#1e3a5f" />
+                                    </marker>
+                                </defs>
+                            </svg>
+                            <p class="image-caption">Fig 1. Representación de Little Endian en memoria</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-item box">
+                        <h3>Segmentación</h3>
+                        <p>El 8086/88 tiene un bus de datos de 16 bits y uno de direcciones de 20 bits (accede a 1 MB). Para aprovechar la capacidad de direccionamiento, cada dirección se especifica como un segmento y un desplazamiento.</p>
+                        <p><strong>Dirección Efectiva</strong> = Segmento (desplazado 4 bits) + Desplazamiento</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="3" width="20" height="18" rx="2" fill="white"/>
+                    <rect x="5" y="7" width="14" height="2" fill="var(--color-blue)"/>
+                    <rect x="5" y="11" width="14" height="2" fill="var(--color-blue)"/>
+                    <rect x="5" y="15" width="14" height="2" fill="var(--color-blue)"/>
+                </svg>
+                Registros Internos
+            </div>
+            <div class="card-body">
+                <p>El 8086/88 dispone de 4 registros de datos, 4 registros de segmento, 5 registros de índice y 1 registro de estado.</p>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="openTab(event, 'tab-datos')">Registros de Datos</button>
+                    <button class="tab" onclick="openTab(event, 'tab-segmento')">Registros de Segmento</button>
+                    <button class="tab" onclick="openTab(event, 'tab-indice')">Registros de Índice</button>
+                    <button class="tab" onclick="openTab(event, 'tab-estado')">Registro de Estado</button>
+                </div>
+                
+                <div id="tab-datos" class="tab-content active">
+                    <p>Los registros de datos son de 16 bits, aunque están divididos, lo que permite su acceso en 8 bits.</p>
+                    
+                    <div class="flex-container">
+                        <div class="flex-item" style="flex: 1.5;">
+                            <h3>AX (acumulador)</h3>
+                            <div class="registro">
+                                <div class="registro-nombre">AX</div>
+                                <div class="registro-parte">AH</div>
+                                <div class="registro-parte">AL</div>
+                            </div>
+                            <p>Se usa para almacenar el resultado de las operaciones. Es el único registro con el que se puede hacer divisiones y multiplicaciones.</p>
+                            
+                            <h3>BX (registro base)</h3>
+                            <div class="registro">
+                                <div class="registro-nombre">BX</div>
+                                <div class="registro-parte">BH</div>
+                                <div class="registro-parte">BL</div>
+                            </div>
+                            <p>Almacena la dirección base para los accesos a memoria.</p>
+                            
+                            <h3>CX (contador)</h3>
+                            <div class="registro">
+                                <div class="registro-nombre">CX</div>
+                                <div class="registro-parte">CH</div>
+                                <div class="registro-parte">CL</div>
+                            </div>
+                            <p>Actúa como contador en los bucles de repetición. CL almacena el desplazamiento en las operaciones de desplazamiento y rotación.</p>
+                            
+                            <h3>DX (datos)</h3>
+                            <div class="registro">
+                                <div class="registro-nombre">DX</div>
+                                <div class="registro-parte">DH</div>
+                                <div class="registro-parte">DL</div>
+                            </div>
+                            <p>Es usado para almacenar los datos de las operaciones.</p>
+                        </div>
+                        <div class="flex-item">
+                        <div class="image-container">
+                            <svg width="100%" height="300" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Fondo del diagrama -->
+                                <rect x="10" y="10" width="480" height="280" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" />
+                                
+                                <!-- Título -->
+                                <text x="250" y="30" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Estructura de registros del procesador 8086</text>
+                                
+                                <!-- Registros de Propósito General -->
+                                <rect x="50" y="60" width="180" height="30" fill="#98c1d9" stroke="#3d5a80" stroke-width="2" />
+                                <text x="140" y="80" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">AX (Acumulador)</text>
+                                
+                                <rect x="50" y="100" width="180" height="30" fill="#98c1d9" stroke="#3d5a80" stroke-width="2" />
+                                <text x="140" y="120" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">BX (Base)</text>
+                                
+                                <rect x="50" y="140" width="180" height="30" fill="#98c1d9" stroke="#3d5a80" stroke-width="2" />
+                                <text x="140" y="160" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">CX (Contador)</text>
+                                
+                                <rect x="50" y="180" width="180" height="30" fill="#98c1d9" stroke="#3d5a80" stroke-width="2" />
+                                <text x="140" y="200" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">DX (Datos)</text>
+                                
+                                <!-- Registro de Segmento -->
+                                <rect x="270" y="60" width="180" height="30" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" />
+                                <text x="360" y="80" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">CS (Código)</text>
+                                
+                                <rect x="270" y="100" width="180" height="30" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" />
+                                <text x="360" y="120" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">DS (Datos)</text>
+                                
+                                <rect x="270" y="140" width="180" height="30" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" />
+                                <text x="360" y="160" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">SS (Pila)</text>
+                                
+                                <rect x="270" y="180" width="180" height="30" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" />
+                                <text x="360" y="200" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">ES (Extra)</text>
+                                
+                                <!-- Índices y Punteros -->
+                                <rect x="50" y="240" width="80" height="30" fill="#f8a07e" stroke="#ee6c4d" stroke-width="2" />
+                                <text x="90" y="260" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">SI</text>
+                                
+                                <rect x="140" y="240" width="80" height="30" fill="#f8a07e" stroke="#ee6c4d" stroke-width="2" />
+                                <text x="180" y="260" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">DI</text>
+                                
+                                <rect x="230" y="240" width="80" height="30" fill="#f8a07e" stroke="#ee6c4d" stroke-width="2" />
+                                <text x="270" y="260" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">BP</text>
+                                
+                                <rect x="320" y="240" width="80" height="30" fill="#f8a07e" stroke="#ee6c4d" stroke-width="2" />
+                                <text x="360" y="260" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">SP</text>
+                                
+                                <rect x="410" y="240" width="40" height="30" fill="#f8a07e" stroke="#ee6c4d" stroke-width="2" />
+                                <text x="430" y="260" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1e3a5f">IP</text>
+                            </svg>
+                            <p class="image-caption">Fig 2. Estructura interna de los registros del procesador 8086</p>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-segmento" class="tab-content">
+                    <p>Los registros de segmento son de 16 bits y contienen el valor de segmento.</p>
+                    
+                    <div class="box">
+                        <h3>CS (segmento de código)</h3>
+                        <p>Contiene el valor de segmento donde se encuentra el código. Actúa junto con IP para obtener la dirección de la próxima instrucción.</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>DS (segmento de datos)</h3>
+                        <p>Contiene el segmento donde están los datos.</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>ES (segmento extra de datos)</h3>
+                        <p>Es usado para acceder a otro segmento que contiene más datos.</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>SS (segmento de pila)</h3>
+                        <p>Contiene el valor del segmento donde está la pila. Se usa conjuntamente con SP para obtener la dirección del último valor almacenado.</p>
+                    </div>
+                </div>
+                
+                <div id="tab-indice" class="tab-content">
+                    <p>Estos registros son usados como índices por algunas instrucciones. También pueden ser usados como operandos (excepto IP).</p>
+                    
+                    <div class="box">
+                        <h3>IP (índice de programa)</h3>
+                        <p>Almacena el desplazamiento dentro del segmento de código. Junto al registro CS apunta a la próxima instrucción.</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>SI (índice de origen)</h3>
+                        <p>Almacena el desplazamiento del operando de origen en memoria.</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>DI (índice de destino)</h3>
+                        <p>Almacena el desplazamiento del operando de destino en memoria.</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>SP (índice de pila)</h3>
+                        <p>Almacena el desplazamiento dentro del segmento de pila, y apunta al último elemento introducido.</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>BP (índice de base)</h3>
+                        <p>Se usa para almacenar desplazamiento en los distintos segmentos. Por defecto es el segmento de la pila.</p>
+                    </div>
+                </div>
+                
+                <div id="tab-estado" class="tab-content">
+                    <p>El registro de estado contiene una serie de banderas (flags) que indican distintas situaciones del procesador.</p>
+                    
+                    <div class="flex-container">
+                        <div class="flex-item">
+                            <div class="registro" style="margin-bottom: 20px;">
+                                <div class="registro-parte">15</div>
+                                <div class="registro-parte">-</div>
+                                <div class="registro-parte">-</div>
+                                <div class="registro-parte">-</div>
+                                <div class="registro-parte">-</div>
+                                <div class="registro-parte">OF</div>
+                                <div class="registro-parte">DF</div>
+                                <div class="registro-parte">IF</div>
+                                <div class="registro-parte">TF</div>
+                                <div class="registro-parte">SF</div>
+                                <div class="registro-parte">ZF</div>
+                                <div class="registro-parte">-</div>
+                                <div class="registro-parte">AF</div>
+                                <div class="registro-parte">-</div>
+                                <div class="registro-parte">PF</div>
+                                <div class="registro-parte">-</div>
+                                <div class="registro-parte">CF</div>
+                                <div class="registro-parte">0</div>
+                            </div>
+                        </div>
+                        <div class="flex-item">
+                        <div class="image-container">
+                            <svg width="100%" height="350" viewBox="0 0 500 350" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Fondo del diagrama -->
+                                <rect x="10" y="10" width="480" height="330" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" />
+                                
+                                <!-- Título -->
+                                <text x="250" y="30" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Registro de Estado (FLAGS)</text>
+                                
+                                <!-- Registro de FLAGS -->
+                                <rect x="50" y="60" width="400" height="40" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" />
+                                
+                                <!-- Divisiones de los bits -->
+                                <line x1="50" y1="60" x2="50" y2="100" stroke="#3d5a80" stroke-width="2" />
+                                <line x1="75" y1="60" x2="75" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="100" y1="60" x2="100" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="125" y1="60" x2="125" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="150" y1="60" x2="150" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="175" y1="60" x2="175" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="200" y1="60" x2="200" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="225" y1="60" x2="225" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="250" y1="60" x2="250" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="275" y1="60" x2="275" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="300" y1="60" x2="300" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="325" y1="60" x2="325" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="350" y1="60" x2="350" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="375" y1="60" x2="375" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="400" y1="60" x2="400" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="425" y1="60" x2="425" y2="100" stroke="#3d5a80" stroke-width="1" />
+                                <line x1="450" y1="60" x2="450" y2="100" stroke="#3d5a80" stroke-width="2" />
+                                
+                                <!-- Numeración de bits -->
+                                <text x="62.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">15</text>
+                                <text x="87.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">14</text>
+                                <text x="112.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">13</text>
+                                <text x="137.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">12</text>
+                                <text x="162.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">11</text>
+                                <text x="187.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">10</text>
+                                <text x="212.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">9</text>
+                                <text x="237.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">8</text>
+                                <text x="262.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">7</text>
+                                <text x="287.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">6</text>
+                                <text x="312.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">5</text>
+                                <text x="337.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">4</text>
+                                <text x="362.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">3</text>
+                                <text x="387.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">2</text>
+                                <text x="412.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">1</text>
+                                <text x="437.5" y="120" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">0</text>
+                                
+                                <!-- Nombres de los FLAGS -->
+                                <text x="62.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">-</text>
+                                <text x="87.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">-</text>
+                                <text x="112.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">-</text>
+                                <text x="137.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">-</text>
+                                <text x="162.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">OF</text>
+                                <text x="187.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">DF</text>
+                                <text x="212.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">IF</text>
+                                <text x="237.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">TF</text>
+                                <text x="262.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">SF</text>
+                                <text x="287.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">ZF</text>
+                                <text x="312.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">-</text>
+                                <text x="337.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">AF</text>
+                                <text x="362.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">-</text>
+                                <text x="387.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">PF</text>
+                                <text x="412.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">-</text>
+                                <text x="437.5" y="80" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">CF</text>
+                                
+                                <!-- Explicaciones de los FLAGS principales -->
+                                <text x="150" y="160" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e3a5f">OF: Desbordamiento</text>
+                                <text x="150" y="180" font-family="sans-serif" font-size="12" fill="#1e3a5f">Error en operaciones con signo</text>
+                                
+                                <text x="150" y="210" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e3a5f">SF: Signo</text>
+                                <text x="150" y="230" font-family="sans-serif" font-size="12" fill="#1e3a5f">Resultado negativo (1) o positivo (0)</text>
+                                
+                                <text x="150" y="260" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e3a5f">ZF: Cero</text>
+                                <text x="150" y="280" font-family="sans-serif" font-size="12" fill="#1e3a5f">Resultado igual a cero (1) o no (0)</text>
+                                
+                                <text x="350" y="160" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e3a5f">CF: Acarreo</text>
+                                <text x="350" y="180" font-family="sans-serif" font-size="12" fill="#1e3a5f">Acarreo en operación aritmética</text>
+                                
+                                <text x="350" y="210" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e3a5f">DF: Dirección</text>
+                                <text x="350" y="230" font-family="sans-serif" font-size="12" fill="#1e3a5f">Sentido en operaciones con cadenas</text>
+                                
+                                <text x="350" y="260" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e3a5f">IF: Interrupción</text>
+                                <text x="350" y="280" font-family="sans-serif" font-size="12" fill="#1e3a5f">Habilita (1) o deshabilita (0) interrupciones</text>
+                            </svg>
+                            <p class="image-caption">Fig 3. Registro de FLAGS del 8086/88</p>
+                        </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="box">
+                            <h3>OF (Desbordamiento)</h3>
+                            <p>Indicador de error en operaciones con signo.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>DF (Dirección)</h3>
+                            <p>Si es 1, el sentido de recorrido de la cadena es de izquierda a derecha.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>IF (Interrupción)</h3>
+                            <p>Cuando vale 1 permite reconocer interrupciones.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>TF (Modo traza)</h3>
+                            <p>Indica ejecución paso a paso. Se usa en depuración.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>SF (Signo)</h3>
+                            <p>Vale 1 cuando el resultado es negativo en operaciones con signo.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>ZF (Cero)</h3>
+                            <p>Vale 1 cuando el resultado es cero.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>AF (Acarreo auxiliar)</h3>
+                            <p>Vale 1 cuando hay acarreo en el bit 3.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>PF (Paridad)</h3>
+                            <p>Vale 1 si el número de bits a 1 es par.</p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>CF (Acarreo)</h3>
+                            <p>Vale 1 si hay acarreo en suma o acarreo negativo en resta.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 3L4 8L8 13" stroke="white" stroke-width="2"/>
+                    <path d="M16 3L20 8L16 13" stroke="white" stroke-width="2"/>
+                    <line x1="14" y1="5" x2="10" y2="19" stroke="white" stroke-width="2"/>
+                </svg>
+                Modos de Direccionamiento
+            </div>
+            <div class="card-body">
+                <p>Los modos de direccionamiento indican la manera de obtener los operandos:</p>
+                
+                <div class="flex-container">
+                    <div class="flex-item" style="flex: 2;">
+                        <div class="grid">
+                            <div class="box">
+                                <h3>Registro</h3>
+                                <p>Ambos operandos son registros.</p>
+                                <p><code>MOV AX,BX</code></p>
+                            </div>
+                            
+                            <div class="box">
+                                <h3>Inmediato</h3>
+                                <p>El operando origen es una constante.</p>
+                                <p><code>MOV AX,500</code></p>
+                            </div>
+                            
+                            <div class="box">
+                                <h3>Directo</h3>
+                                <p>El operando es una dirección de memoria.</p>
+                                <p><code>MOV BX,[1000]</code></p>
+                                <p><code>MOV AX,TABLA</code></p>
+                            </div>
+                            
+                            <div class="box">
+                                <h3>Indirecto mediante registro</h3>
+                                <p>El operando está en memoria en una posición contenida en un registro.</p>
+                                <p><code>MOV AX,[BX]</code></p>
+                            </div>
+                            
+                            <div class="box">
+                                <h3>Indirecto por registro base</h3>
+                                <p>El operando está en memoria en una posición apuntada por un registro más un desplazamiento.</p>
+                                <p><code>MOV AX,[BP]+2</code></p>
+                            </div>
+                            
+                            <div class="box">
+                                <h3>Indexado</h3>
+                                <p>La dirección se obtiene sumando un desplazamiento más un índice.</p>
+                                <p><code>MOV AX,TABLA[DI]</code></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-item">
+                        <div class="image-container">
+                            <img src="/api/placeholder/350/400" alt="Modos de direccionamiento" class="feature-image" />
+                            <p class="image-caption">Fig 4. Ilustración de los diferentes modos de direccionamiento</p>
+                        </div>
+                        <div class="box">
+                            <h3>Indexado respecto a una base</h3>
+                            <p>La dirección se obtiene sumando un registro base, un índice y opcionalmente un desplazamiento.</p>
+                            <p><code>MOV AX,TABLA[BX][DI]</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 7L19 7" stroke="white" stroke-width="2"/>
+                    <path d="M5 12L19 12" stroke="white" stroke-width="2"/>
+                    <path d="M5 17L19 17" stroke="white" stroke-width="2"/>
+                </svg>
+                Juego de Instrucciones
+            </div>
+            <div class="card-body">
+                <p>Las instrucciones del 8086/88 se pueden dividir en varios grupos:</p>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="openTab(event, 'tab-transferencia')">Transferencia</button>
+                    <button class="tab" onclick="openTab(event, 'tab-aritmeticas')">Aritméticas</button>
+                    <button class="tab" onclick="openTab(event, 'tab-logicas')">Lógicas</button>
+                    <button class="tab" onclick="openTab(event, 'tab-control')">Control</button>
+                    <button class="tab" onclick="openTab(event, 'tab-cadenas')">Cadenas</button>
+                </div>
+                
+                <div id="tab-transferencia" class="tab-content active">
+                    <p>Copian datos de un sitio a otro: MOV, XCHG, XLAT, LEA, LDS, LES, LAHF, SAHF, PUSH, PUSHF, POP, POPF.</p>
+                    
+                    <div class="box">
+                        <h3>MOV</h3>
+                        <p>Transfiere datos del operando origen al destino.</p>
+                        <p><code>MOV destino, origen</code></p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>PUSH/POP</h3>
+                        <p>Guardan y recuperan valores en la pila.</p>
+                        <p><code>PUSH AX</code> / <code>POP DS</code></p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>XCHG</h3>
+                        <p>Intercambia los valores entre dos operandos.</p>
+                        <p><code>XCHG AX, BX</code></p>
+                    </div>
+                </div>
+                
+                <div id="tab-aritmeticas" class="tab-content">
+                    <p>Realizan operaciones aritméticas: ADD, ADC, SUB, SBB, MUL, IMUL, DIV, IDIV, INC, DEC, NEG, etc.</p>
+                    
+                    <div class="grid">
+                        <div class="box">
+                            <h3>ADD/ADC</h3>
+                            <p>Suma y suma con acarreo.</p>
+                            <p><code>ADD AX, 34</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>SUB/SBB</h3>
+                            <p>Resta y resta con acarreo.</p>
+                            <p><code>SUB AX, 34</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>MUL/IMUL</h3>
+                            <p>Multiplicación sin signo y con signo.</p>
+                            <p><code>MUL BX</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>DIV/IDIV</h3>
+                            <p>División sin signo y con signo.</p>
+                            <p><code>DIV BX</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>INC/DEC</h3>
+                            <p>Incremento y decremento.</p>
+                            <p><code>INC AX</code> / <code>DEC BX</code></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-logicas" class="tab-content">
+                    <p>Realizan operaciones lógicas: AND, OR, XOR, NOT, TEST, CMP.</p>
+                    
+                    <div class="grid">
+                        <div class="box">
+                            <h3>AND/OR/XOR</h3>
+                            <p>Operaciones lógicas bit a bit.</p>
+                            <p><code>AND AX, BX</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>NOT</h3>
+                            <p>Negado lógico de los bits.</p>
+                            <p><code>NOT AX</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>TEST</h3>
+                            <p>Operación AND pero sin modificar operandos.</p>
+                            <p><code>TEST AX, BX</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>CMP</h3>
+                            <p>Compara (resta) sin modificar operandos.</p>
+                            <p><code>CMP AX, BX</code></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-control" class="tab-content">
+                    <p>Controlan el flujo del programa: JMP, Jcc, CALL, RET, LOOP, etc.</p>
+                    
+                    <div class="grid">
+                        <div class="box">
+                            <h3>JMP</h3>
+                            <p>Salto incondicional.</p>
+                            <p><code>JMP etiqueta</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>Jcc</h3>
+                            <p>Saltos condicionales (JE, JNE, JA, JB, etc.)</p>
+                            <p><code>JE etiqueta</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>CALL/RET</h3>
+                            <p>Llamada y retorno de procedimiento.</p>
+                            <p><code>CALL proc</code> / <code>RET</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>LOOP</h3>
+                            <p>Bucle usando CX como contador.</p>
+                            <p><code>LOOP etiqueta</code></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-cadenas" class="tab-content">
+                    <p>Manipulan cadenas de caracteres: MOVS, CMPS, SCAS, LODS, STOS, etc.</p>
+                    
+                    <div class="grid">
+                        <div class="box">
+                            <h3>MOVS</h3>
+                            <p>Copia un byte/word entre dos posiciones de memoria.</p>
+                            <p><code>REP MOVS destino, fuente</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>CMPS</h3>
+                            <p>Compara dos cadenas en memoria.</p>
+                            <p><code>REPE CMPS destino, fuente</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>SCAS</h3>
+                            <p>Busca un valor en una cadena.</p>
+                            <p><code>REPNE SCAS destino</code></p>
+                        </div>
+                        
+                        <div class="box">
+                            <h3>LODS/STOS</h3>
+                            <p>Carga/almacena en AL/AX de/a memoria.</p>
+                            <p><code>LODS fuente</code> / <code>STOS destino</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 3V7C14 7.55228 14.4477 8 15 8H19" stroke="white" stroke-width="2"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H14L21 10V19C21 20.1046 20.1046 21 19 21Z" stroke="white" stroke-width="2"/>
+                </svg>
+                Etiquetas, Comentarios y Directivas
+            </div>
+            <div class="card-body">
+                <div class="flex-container">
+                    <div class="flex-item box">
+                        <h3>Etiquetas</h3>
+                        <p>Asignan un nombre a una instrucción, permitiendo hacer referencia a ellas. Máximo 31 caracteres, terminan con ":".</p>
+                        <p><code>INICIO: MOV AX, 0</code></p>
+                    </div>
+                    
+                    <div class="flex-item box">
+                        <h3>Comentarios</h3>
+                        <p>Describen las sentencias para facilitar comprensión. Comienzan con ";".</p>
+                        <p><code>MOV CX, 10 ; inicializa contador</code></p>
+                    </div>
+                    
+                    <div class="flex-item box">
+                        <h3>Directivas</h3>
+                        <p>Comandos para el ensamblador (no el procesador). Se usan para preparar segmentos, definir símbolos, reservar memoria, etc.</p>
+                    </div>
+                </div>
+                
+                <h3>Directivas comunes</h3>
+                <div class="grid">
+                    <div class="box">
+                        <h3>.MODEL</h3>
+                        <p>Define el modelo de memoria.</p>
+                        <p><code>.MODEL SMALL</code></p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>.STACK</h3>
+                        <p>Fija tamaño del segmento de pila.</p>
+                        <p><code>.STACK 100h</code></p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>.DATA/.CODE</h3>
+                        <p>Abren segmentos de datos y código.</p>
+                        <p><code>.DATA</code> / <code>.CODE</code></p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>PROC/ENDP</h3>
+                        <p>Definen un procedimiento.</p>
+                        <p><code>INICIO PROC</code> / <code>INICIO ENDP</code></p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>EQU</h3>
+                        <p>Asigna nombre a constantes o expresiones.</p>
+                        <p><code>MAX EQU 100</code></p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>DB/DW/DD</h3>
+                        <p>Reservan espacio para variables.</p>
+                        <p><code>VALOR DB 10</code> / <code>ARRAY DW 100 DUP(?)</code></p>
+                    </div>
+                </div>
+                
+                <h3>Ejemplo de estructura básica</h3>
+                <pre style="background-color: var(--color-light-gray); padding: 1rem; border-radius: 4px; overflow-x: auto;">
+.MODEL SMALL
+.STACK 100h
+.DATA
+    mensaje DB 'Hola Mundo
+.CODE
+MAIN PROC
+    MOV AX, @DATA    ; inicializar segmento de datos
+    MOV DS, AX
+    
+    ; código del programa
+    
+    MOV AH, 4Ch      ; terminar programa
+    INT 21h
+MAIN ENDP
+END MAIN
+</pre>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" stroke="white" stroke-width="2"/>
+                    <path d="M12 7V13L15 16" stroke="white" stroke-width="2"/>
+                </svg>
+                Resumen de Implementación
+            </div>
+            <div class="card-body">
+                <div class="flex-container">
+                    <div class="flex-item">
+                        <h3>Pasos para crear un programa en ensamblador</h3>
+                        <ol>
+                            <li>Definir la estructura del programa (modelo, segmentos)</li>
+                            <li>Declarar variables y constantes</li>
+                            <li>Escribir el código del programa</li>
+                            <li>Ensamblar el código (generar archivo .OBJ)</li>
+                            <li>Enlazar el archivo objeto (generar ejecutable .EXE o .COM)</li>
+                        </ol>
+                        
+                        <div class="box">
+                            <h3>Consejos prácticos</h3>
+                            <ul>
+                                <li>Documentar el código con comentarios</li>
+                                <li>Usar etiquetas descriptivas</li>
+                                <li>Organizar el código en procedimientos</li>
+                                <li>Usar instrucciones de desplazamiento (SHL/SHR) para multiplicaciones/divisiones por potencias de 2</li>
+                                <li>Entender bien el registro de estado para saltos condicionales</li>
+                                <li>Cuidado con el tamaño de los operandos (byte/word)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="flex-item">
+                        <div class="image-container">
+                            <svg width="100%" height="300" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Fondo del diagrama -->
+                                <rect x="10" y="10" width="480" height="280" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" />
+                                
+                                <!-- Título -->
+                                <text x="250" y="30" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Proceso de Ensamblado y Enlazado</text>
+                                
+                                <!-- Caja para Archivo .ASM -->
+                                <rect x="50" y="60" width="120" height="60" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" rx="5" ry="5" />
+                                <text x="110" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Código Fuente</text>
+                                <text x="110" y="110" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">(.ASM)</text>
+                                
+                                <!-- Flecha desde ASM a Ensamblador -->
+                                <line x1="170" y1="90" x2="210" y2="90" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrowhead2)" />
+                                
+                                <!-- Caja para Ensamblador -->
+                                <rect x="220" y="60" width="120" height="60" fill="#98c1d9" stroke="#3d5a80" stroke-width="2" rx="5" ry="5" />
+                                <text x="280" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Ensamblador</text>
+                                <text x="280" y="110" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">(MASM, TASM)</text>
+                                
+                                <!-- Flecha desde Ensamblador a Objeto -->
+                                <line x1="340" y1="90" x2="380" y2="90" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrowhead2)" />
+                                
+                                <!-- Caja para Archivo Objeto -->
+                                <rect x="390" y="60" width="80" height="60" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" rx="5" ry="5" />
+                                <text x="430" y="90" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Objeto</text>
+                                <text x="430" y="110" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">(.OBJ)</text>
+                                
+                                <!-- Flecha desde Objeto a Enlazador -->
+                                <line x1="430" y1="120" x2="430" y2="160" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrowhead2)" />
+                                
+                                <!-- Caja para Enlazador -->
+                                <rect x="220" y="170" width="120" height="60" fill="#98c1d9" stroke="#3d5a80" stroke-width="2" rx="5" ry="5" />
+                                <text x="280" y="200" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Enlazador</text>
+                                <text x="280" y="220" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">(LINK)</text>
+                                
+                                <!-- Flecha desde Enlazador a Ejecutable -->
+                                <line x1="220" y1="200" x2="180" y2="200" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrowhead2)" />
+                                
+                                <!-- Caja para Archivo Ejecutable -->
+                                <rect x="50" y="170" width="120" height="60" fill="#f8a07e" stroke="#ee6c4d" stroke-width="2" rx="5" ry="5" />
+                                <text x="110" y="200" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Ejecutable</text>
+                                <text x="110" y="220" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">(.EXE / .COM)</text>
+                                
+                                <!-- Flecha desde Librerías a Enlazador -->
+                                <rect x="390" y="170" width="80" height="60" fill="#e0fbfc" stroke="#3d5a80" stroke-width="2" rx="5" ry="5" />
+                                <text x="430" y="200" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e3a5f">Librerías</text>
+                                <text x="430" y="220" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#1e3a5f">(.LIB)</text>
+                                
+                                <line x1="390" y1="200" x2="340" y2="200" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrowhead2)" />
+                                
+                                <!-- Definición de punta de flecha -->
+                                <defs>
+                                    <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#1e3a5f" />
+                                    </marker>
+                                </defs>
+                            </svg>
+                            <p class="image-caption">Fig 6. Proceso de ensamblado y enlazado de un programa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Desarrolladores</h3>
+                <ul class="developers-list">
+                    <li>Angela Gabriela Pinelo Flores <span class="carnet">9490-24-1578</span></li>
+                    <li>Daniel Alexander Contreras Santos <span class="carnet">090-22-252</span></li>
+                    <li>Marvin Armando Pérez Castañón <span class="carnet">7690-14-6710</span></li>
+                    <li>Monica María Melgar Pérez <span class="carnet">5190-20-19822</span></li>
+                    <li>Jerónimo Gómez Patzán <span class="carnet">5390-03-4244</span></li>
+                    <li>Javier Gómez Riz <span class="carnet">1990-07-12940</span></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Información del Documento</h3>
+                <p>Resumen de Ensamblador 8086/88</p>
+                <p>Arquitectura y Tecnología de Computadores</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        function openTab(evt, tabId) {
+            var i, tabContent, tabLinks;
+            
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].className = tabContent[i].className.replace(" active", "");
+            }
+            
+            tabLinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tabLinks.length; i++) {
+                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabId).className += " active";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+</html>
